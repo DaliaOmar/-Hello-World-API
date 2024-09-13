@@ -1,33 +1,32 @@
 const express = require('express');
-const os = require('os');
-
 const app = express();
-const port = 3001;
+const os = require('os');
+const port = process.env.PORT || 3001;
 
-// hello
 app.get('/hello', (req, res) => {
     const name = req.query.name || 'World';
-    res.setHeader('Content-Type', 'application/json');
-    res.json({
-        greeting: `Hello, ${name}`
-    });
+    res.json({ greeting: `Hello, ${name}!` }); 
 });
 
-// info
-app.get('/info', (req, res) => {
-    const clientAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    const hostName = os.hostname();
-    const headers = req.headers;
-    const currentTime = new Date().toISOString();
 
-    res.setHeader('Content-Type', 'application/json');
+app.get('/info', (req, res) => {
+    const headers = req.headers;
+    const clientAddress = req.ip;
+    const time = new Date().toISOString();
+    const hostName = os.hostname();
+
     res.json({
-        time: currentTime,
+        time: time,
         client_address: clientAddress,
         host_name: hostName,
         headers: headers
     });
 });
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
-});
+
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`Server running on http://localhost:${port}`);
+    });
+}
+
+module.exports = app; 
